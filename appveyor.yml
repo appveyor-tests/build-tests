@@ -7,5 +7,5 @@ environment:
   api_key:
     secure: plhX9LRt4yL5H2VkL91sLRU90FFZbkvkYFudMEanX3A=
 
-after_build:
-  - cmd: C:/Tools/xUnit20/xunit.runner.console.exe "C:/Projects/build-tests/bin/debug/build-tests.dll"
+#after_build:
+#  - cmd: C:/Tools/xUnit20/xunit.runner.console.exe "C:/Projects/build-tests/bin/debug/build-tests.dll"
