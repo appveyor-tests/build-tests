@@ -20,7 +20,7 @@ namespace build_tests
         List<string> projectList;
         HttpClient client;
         int MaxProvisioningTime = 9;
-        int MaxRunTime = 5;
+        int MaxRunTime = 6;
         public TestBase(ProjectListFixture fixture, ITestOutputHelper output)
         {
             //fetch all projects from appeyor account and put them into a list<string>
