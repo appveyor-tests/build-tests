@@ -12,11 +12,9 @@ namespace build_tests
 {
     public class ProjectListFixture
     {
-        
-        //string env = "%api_key%";   
+           
         string token = Environment.ExpandEnvironmentVariables("%api_key%");
         string baseUri = "https://ci.appveyor.com/api/";
-        public int MyProperty { get; set; }
         
         public ProjectListFixture()
         {
@@ -42,7 +40,6 @@ namespace build_tests
             client.BaseAddress = new Uri(baseUri);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return client;
-
         }
 
     }

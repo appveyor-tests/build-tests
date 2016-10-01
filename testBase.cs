@@ -86,7 +86,6 @@ namespace build_tests
                 var lastBuildJson = await lastBuild.Content.ReadAsStringAsync();
                 JObject buildObject = JObject.Parse(lastBuildJson);
                 var job = (JToken)buildObject["build"]["jobs"][0];
-                //output.WriteLine(lastBuildJson);
 
                 var jobId = job.Value<string>("jobId");
                 var status = job.Value<string>("status");
