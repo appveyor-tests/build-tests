@@ -1,13 +1,16 @@
 version: 1.0.{build}
-build:
-  verbosity: minimal
-  project: build-tests.sln
+
 
 environment:
   APPVEYOR_BUILD_WORKER_CLOUD:  test-workers-v2
   APPVEYOR_BUILD_WORKER_IMAGE:  test-vs2015-hyperv
   api_key:
     secure: plhX9LRt4yL5H2VkL91sLRU90FFZbkvkYFudMEanX3A=
+build:
+  verbosity: minimal
+  project: build-tests.sln
+before_build:
+  nuget restore
 
 #after_build:
 #  - cmd: C:/Tools/xUnit20/xunit.runner.console.exe "C:/Projects/build-tests/bin/debug/build-tests.dll"
