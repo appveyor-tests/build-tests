@@ -14,27 +14,17 @@ using Xunit.Extensions;
 
 namespace BuildTests
 {
-    public class TestBase : IClassFixture<ProjectListFixture>
+    public class BuildTestData
     {
-        private readonly ITestOutputHelper output;
-        string account = "appveyor-tests";
-        List<string> projectList;
-        HttpClient client;
-        string imageType;
-        int MaxProvisioningTime = 9;
-        int MaxRunTime = 6;
-        public TestBase(ProjectListFixture fixture, ITestOutputHelper output)
-        {
-            //fetch all projects from appeyor account and put them into a list<string>
-            this.client = fixture.GetClient();
-            this.projectList = fixture.GetProjects(this.client).Result;
-            this.output = output;
-           
-        }
-        public IEnumerable<string> TestData
+        
+        public static IEnumerable<object> TestData
         {
             get
             {
+                var fixture = new ProjectListFixture();
+                var testClient = fixture.GetClient();
+                var projectList = fixture.GetProjects(testClient).Result;
+                var testCases = new List<object[]>();
                 foreach (string p in projectList)
                 {
                     if (String.Equals(p, "build-tests", StringComparison.OrdinalIgnoreCase))
@@ -43,18 +33,63 @@ namespace BuildTests
                     }
                     else
                     {
-                        yield return p;
+                        var x = new object[] { p };
+                       
+                        testCases.Add(x);
+
                     }
+                    
                 }
+                return testCases;
+
             }
         }
-        [Theory, MemberData("TestData")]
+    }
+    public class TestBase : IClassFixture<ProjectListFixture>
+    {
+        private readonly ITestOutputHelper output;
+        string account = "appveyor-tests";
+        //public List<string> projectList;
+        HttpClient client;
+        int MaxProvisioningTime = 9;
+        int MaxRunTime = 6;
+
+        //public static IEnumerable<object> TestData;
+        //{
+        //    get
+        //    {
+        //        var fixture = new ProjectListFixture();
+        //        var testClient = fixture.GetClient(); 
+        //        var testCases = fixture.GetProjects(testClient).Result;
+
+        //        foreach (string p in testCases)
+        //        {
+        //            if (String.Equals(p, "build-tests", StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                continue;
+        //            }
+        //            else
+        //            {
+        //                yield return p;
+
+        //            }
+        //        }
+
+        //    }
+        //}
+        public TestBase(ProjectListFixture fixture, ITestOutputHelper output)
+        {
+            //fetch all projects from appeyor account and put them into a list<string>
+            this.client = fixture.GetClient();
+            //TestData = PopulateTestData(fixture);
+            //this.projectList = fixture.GetProjects(this.client).Result;
+            this.output = output;
+        }
+        [Theory]
+        [MemberData("TestData", MemberType = typeof(BuildTestData))]
         public void BuildShouldSucceed(string project)
         {
-            //if(String.Equals(project, "build-tests", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    Assert.True(true);
-            //}
+                
             var result = Run(project).Result;
             if (result)
             {

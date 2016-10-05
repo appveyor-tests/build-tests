@@ -12,14 +12,16 @@ namespace BuildTests
 {
     public class ProjectListFixture
     {
-           
+
         string token = Environment.GetEnvironmentVariable("api_key");
-        string baseUri = "https://ci.appveyor.com/api/";
         
+        string baseUri = "https://ci.appveyor.com/api/";
+
         public ProjectListFixture()
         {
-           
+
         }
+
         public async Task<List<string>> GetProjects(HttpClient client) 
         {
             var projectList = new List<string>();
