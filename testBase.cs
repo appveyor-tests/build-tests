@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Net.Http.Formatting;
 using Xunit.Abstractions;
+using Xunit.Extensions;
 
-namespace build_tests
+namespace BuildTests
 {
     public class TestBase : IClassFixture<ProjectListFixture>
     {
@@ -19,6 +20,7 @@ namespace build_tests
         string account = "appveyor-tests";
         List<string> projectList;
         HttpClient client;
+        string imageType;
         int MaxProvisioningTime = 9;
         int MaxRunTime = 6;
         public TestBase(ProjectListFixture fixture, ITestOutputHelper output)
@@ -29,38 +31,56 @@ namespace build_tests
             this.output = output;
            
         }
-        [Fact]
-        public void TestLoop()
+        public IEnumerable<string> TestData
         {
-            foreach (string p in projectList)
+            get
             {
-                if(String.Equals(p, "build-tests", StringComparison.OrdinalIgnoreCase))
+                foreach (string p in projectList)
                 {
-                    continue;
+                    if (String.Equals(p, "build-tests", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        yield return p;
+                    }
                 }
-                var result = Run(p).Result;
-                if (result)
-                {
-                    output.WriteLine("running project: {0} succeeded", p);
-                    Assert.True(result);
-                }
-                else
-                {
-                    output.WriteLine("running project: {0} failed", p);
-                    Assert.True(result);
-                }
+            }
+        }
+        [Theory, MemberData("TestData")]
+        public void BuildShouldSucceed(string project)
+        {
+            //if(String.Equals(project, "build-tests", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    Assert.True(true);
+            //}
+            var result = Run(project).Result;
+            if (result)
+            {
+                output.WriteLine("running project: {0} succeeded", project);
+                Assert.True(result);
+            }
+            else
+            {
+                output.WriteLine("running project: {0} failed", project);
+                Assert.True(result);
             }
         }
         public async Task<bool> Run(string project)
         {
             //start the build
-            var requestBody = new Dictionary<string, string>
+            var requestBody = new
             {
-                { "accountName", account },
-                { "projectSlug", project },
-                { "branch", "master" }
+                accountName = account,
+                projectSlug = project,
+                branch = "master",
+                environmentVariables = new
+                {
+
+                }
             };
-            var response = await client.PostAsync("builds", new FormUrlEncodedContent(requestBody));
+            var response = await client.PostAsJsonAsync("builds", requestBody);
             var buildJson = await response.Content.ReadAsStringAsync();
             JToken build = JToken.Parse(buildJson);
             string buildVersion = build.Value<string>("version");

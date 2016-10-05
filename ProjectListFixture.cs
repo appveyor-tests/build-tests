@@ -8,12 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace build_tests
+namespace BuildTests
 {
     public class ProjectListFixture
     {
            
-        string token = Environment.ExpandEnvironmentVariables("%api_key%");
+        string token = Environment.GetEnvironmentVariable("api_key");
         string baseUri = "https://ci.appveyor.com/api/";
         
         public ProjectListFixture()
