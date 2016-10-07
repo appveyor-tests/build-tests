@@ -20,7 +20,17 @@ namespace BuildTests
         {
             get
             {
-                var skipTags = Environment.GetEnvironmentVariable("SKIP_TAGS");
+                var tags = Environment.GetEnvironmentVariable("SKIP_TAGS");
+                string[] skipTags;
+                if (tags != null)
+                {
+                    skipTags = tags.Split(',').ToArray();
+                }
+                else
+                {
+                    skipTags = new string[0];
+                }
+                
                 var includeTests = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
                 var fixture = new ProjectListFixture();
                 var testClient = fixture.GetClient();
@@ -28,7 +38,7 @@ namespace BuildTests
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {
-                    if (String.Equals(p.Key, "build-tests", StringComparison.OrdinalIgnoreCase) | p.Value.Contains(skipTags))
+                    if (String.Equals(p.Key, "build-tests", StringComparison.OrdinalIgnoreCase) | skipTags.Any(p.Value.Contains))
                     {
                         continue;
                     }
