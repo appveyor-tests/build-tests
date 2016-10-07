@@ -12,29 +12,29 @@ namespace BuildTests
 {
     public class ProjectListFixture
     {
-
-        string token = Environment.GetEnvironmentVariable("api_key");
-        
+        string token = Environment.GetEnvironmentVariable("api_key");       
         string baseUri = "https://ci.appveyor.com/api/";
-
         public ProjectListFixture()
         {
 
         }
 
-        public async Task<List<string>> GetProjects(HttpClient client) 
+        public async Task<Dictionary<string, string>> GetProjects(HttpClient client) 
         {
+            var projectDict = new Dictionary<string, string>();
             var projectList = new List<string>();
             var response = await client.GetAsync("projects");
             var projectString = await response.Content.ReadAsStringAsync();
-            var projectsParsed = JArray.Parse(projectString);
+            var projectsParsed = JArray.Parse(projectString);          
             var projects = projectsParsed.Children().ToList();
             foreach (var p in projects)
             {
+                //var projectTagsString = p.Value<string>("tags");
+                //var projectTags = JArray.Parse(projectTagsString);
                 projectList.Add(p.Value<string>("name"));
+                projectDict.Add(p.Value<string>("name"), p.Value<string>("tags"));
             }
-            return projectList;
-
+            return projectDict;
         }
         public HttpClient GetClient()
         {
@@ -43,7 +43,5 @@ namespace BuildTests
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return client;
         }
-
-    }
-       
+    }      
 }
