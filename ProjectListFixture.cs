@@ -12,8 +12,8 @@ namespace BuildTests
 {
     public class ProjectListFixture
     {
-        //string token = Environment.GetEnvironmentVariable("api_key"); 
-        string token = "b9o0d919yskipmhcafuo";
+        string token = Environment.GetEnvironmentVariable("api_key"); 
+       
         string baseUri = "https://ci.appveyor.com/api/";
         public ProjectListFixture()
         {
