@@ -6,7 +6,7 @@ environment:
   APPVEYOR_BUILD_WORKER_IMAGE:  test-vs2015-hyperv
   MAX_BUILD_TIME_MINS: 7
   api_key:
-    secure: plhX9LRt4yL5H2VkL91sLRU90FFZbkvkYFudMEanX3A=
+    secure: wJbocyB+OHlu003L0RIgvBpXZVobLawGGNACMvN7DmY=
 build:
   verbosity: minimal
   project: build-tests.sln
