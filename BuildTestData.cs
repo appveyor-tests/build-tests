@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace BuildTests
 {
     public class BuildTestData
     {
+        private readonly ITestOutputHelper output;
+        public BuildTestData(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
         public static IEnumerable<object> TestData
         {
             get
@@ -23,9 +29,9 @@ namespace BuildTests
                     skipTags = new string[0];
                 }
                 var includeTests = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
-                var testBase = new TestBase();
-                var testClient = testBase.GetClient();
-                var projectList = testBase.GetProjects(testClient).Result;
+                //var testBase = new TestBase();
+                var testClient = TestBase.GetClient();
+                var projectList = TestBase.GetProjects(testClient).Result;
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {

@@ -18,21 +18,17 @@ namespace BuildTests
     public class TestBase
     {
         private readonly ITestOutputHelper output;
-        string account = "appveyor-tests";
-        //HttpClient client;
+        static string account = "appveyor-tests";
+        static string token = Environment.GetEnvironmentVariable("appveyor_build_tests_api_key");
+        static string baseUri = "https://ci.appveyor.com/api/";
         int MaxProvisioningTime = 9;
         int MaxRunTime = (Environment.GetEnvironmentVariable("MAX_BUILD_TIME_MINS") != null) ?
             int.Parse(Environment.GetEnvironmentVariable("MAX_BUILD_TIME_MINS")) : 7;
-        string token = Environment.GetEnvironmentVariable("appveyor_build_tests_api_key");
-        string baseUri = "https://ci.appveyor.com/api/";
+        
 
         public TestBase(ITestOutputHelper output)
         {
             this.output = output;
-        }
-        public TestBase()
-        {
-
         }
 
         [Theory]
@@ -127,7 +123,7 @@ namespace BuildTests
             } //end while loop
         }
 
-        public async Task<Dictionary<string, string>> GetProjects(HttpClient client)
+        public static async Task<Dictionary<string, string>> GetProjects(HttpClient client)
         {
             //fetch all projects from appeyor account and put them and their tags into a dictionary<string, string>
             var projectDict = new Dictionary<string, string>();
@@ -146,7 +142,7 @@ namespace BuildTests
             return projectDict;
         }
 
-        public HttpClient GetClient()
+        public static HttpClient GetClient()
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri(baseUri);
