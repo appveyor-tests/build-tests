@@ -14,60 +14,27 @@ using Xunit.Extensions;
 
 namespace BuildTests
 {
-    public class BuildTestData
-    {        
-        public static IEnumerable<object> TestData
-        {
-            get
-            {
-                var tags = Environment.GetEnvironmentVariable("SKIP_TAGS");
-                string[] skipTags;
-                if (tags != null)
-                {
-                    skipTags = tags.Split(',').ToArray();
-                }
-                else
-                {
-                    skipTags = new string[0];
-                }
-                
-                var includeTests = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
-                var fixture = new ProjectListFixture();
-                var testClient = fixture.GetClient();
-                var projectList = fixture.GetProjects(testClient).Result;
-                var testCases = new List<object[]>();
-                foreach (var p in projectList)
-                {
-                    if (String.Equals(p.Key, "build-tests", StringComparison.OrdinalIgnoreCase) | skipTags.Any(p.Value.Contains))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        var x = new object[] { p.Key };                      
-                        testCases.Add(x);
-                    }                   
-                }
-                return testCases;
-            }
-        }
-    }
 
-    public class TestBase : IClassFixture<ProjectListFixture>
+    public class TestBase
     {
         private readonly ITestOutputHelper output;
         string account = "appveyor-tests";
-        HttpClient client;
-        int MaxProvisioningTime = 9;       
-        int MaxRunTime = Int32.Parse(Environment.GetEnvironmentVariable("MAX_BUILD_TIME_MINS"));
+        //HttpClient client;
+        int MaxProvisioningTime = 9;
+        int MaxRunTime = (Environment.GetEnvironmentVariable("MAX_BUILD_TIME_MINS") != null) ?
+            int.Parse(Environment.GetEnvironmentVariable("MAX_BUILD_TIME_MINS")) : 7;
+        string token = Environment.GetEnvironmentVariable("appveyor_build_tests_api_key");
+        string baseUri = "https://ci.appveyor.com/api/";
 
-
-        public TestBase(ProjectListFixture fixture, ITestOutputHelper output)
+        public TestBase(ITestOutputHelper output)
         {
-            //fetch all projects from appeyor account and put them into a list<string>
-            this.client = fixture.GetClient();
             this.output = output;
         }
+        public TestBase()
+        {
+
+        }
+
         [Theory]
         [MemberData("TestData", MemberType = typeof(BuildTestData))]
         public void BuildShouldSucceed(string project)
@@ -85,8 +52,10 @@ namespace BuildTests
                 Assert.True(result);
             }
         }
+
         public async Task<bool> Run(string project)
         {
+            HttpClient client = GetClient();
             //start the build
             var requestBody = new
             {
@@ -110,14 +79,9 @@ namespace BuildTests
             string buildNotFinishedErrorMessage = String.Format("Build has not finished in {0} minutes", MaxRunTime);
             string buildFailedErrorMessage = String.Format("Build has failed");
             string buildCancelledErrorMessage = String.Format("Build has been cancelled");
-
-           
-
             //checking to see when build status is success. 
             while (true)
             {
-                if (MaxRunTime < 0)
-
                 await Task.Delay(TimeSpan.FromSeconds(5));               
                 var elapsed = DateTime.UtcNow - buildStarted;
                 //get and parse last build which contains jobs array
@@ -161,6 +125,33 @@ namespace BuildTests
                 }
 
             } //end while loop
+        }
+
+        public async Task<Dictionary<string, string>> GetProjects(HttpClient client)
+        {
+            //fetch all projects from appeyor account and put them and their tags into a dictionary<string, string>
+            var projectDict = new Dictionary<string, string>();
+            var projectList = new List<string>();
+            var response = await client.GetAsync("projects");
+            var projectString = await response.Content.ReadAsStringAsync();
+            var projectsParsed = JArray.Parse(projectString);
+            var projects = projectsParsed.Children().ToList();
+            foreach (var p in projects)
+            {
+                //var projectTagsString = p.Value<string>("tags");
+                //var projectTags = JArray.Parse(projectTagsString);
+                //projectList.Add(p.Value<string>("name"));
+                projectDict.Add(p.Value<string>("name"), p.Value<string>("tags"));
+            }
+            return projectDict;
+        }
+
+        public HttpClient GetClient()
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(baseUri);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return client;
         }
     }
 }
