@@ -21,7 +21,6 @@ namespace BuildTests
             get
             {
                 var tags = Environment.GetEnvironmentVariable("SKIP_TAGS");
-                
                 string[] skipTags;
                
                 if (tags != null)
@@ -38,17 +37,12 @@ namespace BuildTests
                 {
                     includeTests = include.Split(',').ToArray();
                 }
-                else
-                {
-                    includeTests = new string[0];
-                }
-
                 var client = AppveyorApi.GetClient();
                 var projectList = AppveyorApi.GetProjects(client).Result;
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {
-                    if (String.Equals(p.name, "build-tests", StringComparison.OrdinalIgnoreCase) | skipTags.Any(p.tags.Contains) | ((includeTests != null) && !includeTests.Any(p.tags.Contains)))
+                    if (String.Equals(p.name, "build-tests", StringComparison.OrdinalIgnoreCase) || skipTags.Any(p.tags.Contains) || ((includeTests != null) && !(includeTests.Any(p.tags.Contains))))
                     {
                         continue;
                     }
