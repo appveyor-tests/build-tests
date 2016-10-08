@@ -9,11 +9,6 @@ namespace BuildTests
 {
     public class BuildTestData
     {
-        private readonly ITestOutputHelper output;
-        public BuildTestData(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
         public static IEnumerable<object> TestData
         {
             get
