@@ -47,6 +47,7 @@ namespace BuildTests
                 output.WriteLine("running project: {0} failed", project);
                 Assert.True(result);
             }
+            Task.Delay(TimeSpan.FromSeconds(30)).Wait();
         }
 
         public async Task<bool> Run(string project)
