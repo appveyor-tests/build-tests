@@ -2,9 +2,7 @@ version: 1.0.{build}
 
 
 environment:
-  APPVEYOR_BUILD_WORKER_CLOUD:  test-workers-v2
-  APPVEYOR_BUILD_WORKER_IMAGE:  test-vs2015-hyperv
-  MAX_BUILD_TIME_MINS: 7
+  MAX_BUILD_TIME_MINS: 20
   appveyor_build_tests_api_key:
     secure: wJbocyB+OHlu003L0RIgvBpXZVobLawGGNACMvN7DmY=
 build:
