@@ -22,7 +22,7 @@ namespace BuildTests
                 string[] skipTags;
                 if (tags != null)
                 {
-                    skipTags = tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    skipTags = tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
                 }
                 else
                 {
@@ -35,10 +35,10 @@ namespace BuildTests
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {
-                    var projectTags = p.Value.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var projectTags = p.Value.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
 
                     if (String.Equals(p.Key, "build-tests", StringComparison.OrdinalIgnoreCase)
-                        | skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0)
+                        | skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0) // a,B,c,D   A,c,E => a,c
                     {
                         continue;
                     }
