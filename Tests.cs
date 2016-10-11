@@ -26,7 +26,6 @@ namespace BuildTests
                 if (tags != null)
                 {
                     skipTags = tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
-                    //skipTags = tags.Split(',').ToArray();
                 }
                 else
                 {
@@ -36,7 +35,7 @@ namespace BuildTests
                 string[] includeTests = null;
                 if (include != null)
                 {
-                    includeTests = include.Split(',').ToArray();
+                    includeTests = include.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
                 }
                 var client = AppveyorApi.GetClient();
                 var projectList = AppveyorApi.GetProjects(client).Result;
@@ -117,6 +116,7 @@ namespace BuildTests
             string buildNotFinishedErrorMessage = String.Format("Build has not finished in {0} minutes", MaxRunTime);
             string buildFailedErrorMessage = String.Format("Build has failed");
             string buildCancelledErrorMessage = String.Format("Build has been cancelled");
+            int retry = 3;
             //checking to see when build status is success. 
             while (true)
             {
@@ -124,6 +124,11 @@ namespace BuildTests
                 var elapsed = DateTime.UtcNow - buildStarted;
                 //get last build and deserialize into ProjectModel class
                 var lastBuild = await client.GetAsync("projects/" + account + "/" + project);
+                //if 500 response code, try three more times.             
+                if (!lastBuild.IsSuccessStatusCode && retry > 0)
+                {
+                    continue;
+                }
                 var lastBuildString = await lastBuild.Content.ReadAsStringAsync();
                 ProjectModel model = JsonConvert.DeserializeObject<ProjectModel>(lastBuildString);
                 Job job = model.build.jobs.FirstOrDefault<Job>();
