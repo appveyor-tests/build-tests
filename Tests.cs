@@ -127,6 +127,7 @@ namespace BuildTests
                 //if 500 response code, try three more times.             
                 if (!lastBuild.IsSuccessStatusCode && retry > 0)
                 {
+                    retry -= 1;
                     continue;
                 }
                 var lastBuildString = await lastBuild.Content.ReadAsStringAsync();
