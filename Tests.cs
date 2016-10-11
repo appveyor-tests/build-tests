@@ -25,7 +25,8 @@ namespace BuildTests
                
                 if (tags != null)
                 {
-                    skipTags = tags.Split(',').ToArray();
+                    skipTags = tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
+                    //skipTags = tags.Split(',').ToArray();
                 }
                 else
                 {
@@ -42,7 +43,11 @@ namespace BuildTests
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {
-                    if (String.Equals(p.name, "build-tests", StringComparison.OrdinalIgnoreCase) || skipTags.Any(p.tags.Contains) || ((includeTests != null) && !(includeTests.Any(p.tags.Contains))))
+                    var projectTags = p.tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
+                    if (String.Equals(p.name, "build-tests", StringComparison.OrdinalIgnoreCase)
+                        | skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0 
+                        | ((includeTests != null) && !(includeTests.Any(p.tags.Contains))))
+                    
                     {
                         continue;
                     }
