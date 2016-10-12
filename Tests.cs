@@ -31,8 +31,7 @@ namespace BuildTests
                 {
                     skipTags = new string[0];
                 }
-                //var include = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
-                var include = "multi";
+                var include = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
                 string[] includeTests = null;
                 if (include != null)
                 {
