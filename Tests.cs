@@ -31,7 +31,8 @@ namespace BuildTests
                 {
                     skipTags = new string[0];
                 }
-                var include = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
+                //var include = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
+                var include = "multi";
                 string[] includeTests = null;
                 if (include != null)
                 {
@@ -156,6 +157,10 @@ namespace BuildTests
                 {
                     output.WriteLine(buildCancelledErrorMessage);
                     return false;
+                }
+                else if (String.Equals(model.build.status, "running", StringComparison.OrdinalIgnoreCase) || String.Equals(model.build.status, "queued", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
                 }
                 else if (String.Equals(job.status, "success", StringComparison.OrdinalIgnoreCase))
                 {
