@@ -35,7 +35,6 @@ namespace BuildTests
         [MemberData("TestData", MemberType = typeof(BuildTestData))]
         public void BuildShouldSucceed(string project)
         {
-                
             var result = Run(project).Result;
             if (result)
             {
@@ -52,6 +51,7 @@ namespace BuildTests
 
         public async Task<bool> Run(string project)
         {
+            Console.WriteLine("Testing: " + project);
             HttpClient client = GetClient();
             //start the build
             var requestBody = new
