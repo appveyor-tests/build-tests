@@ -2,6 +2,7 @@ version: 1.0.{build}
 
 init:
 - appveyor version
+- git --version
 
 environment:
   MAX_BUILD_TIME_MINS: 20
