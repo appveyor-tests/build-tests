@@ -8,8 +8,8 @@
     <ProjectGuid>{43F76DA7-711C-4F33-88EE-1DC4377CE35A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>build_tests</RootNamespace>
-    <AssemblyName>build-tests</AssemblyName>
+    <RootNamespace>BuildTests</RootNamespace>
+    <AssemblyName>BuildTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildTestData.cs" />
+    <Compile Include="ProjectDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
   </ItemGroup>

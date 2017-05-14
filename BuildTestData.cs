@@ -35,16 +35,18 @@ namespace BuildTests
                 var testCases = new List<object[]>();
                 foreach (var p in projectList)
                 {
-                    var projectTags = p.Value.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
+                    var projectTags = p.Tags != null
+                        ? p.Tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray()
+                        : new string[0];
 
-                    if (String.Equals(p.Key, "build-tests", StringComparison.OrdinalIgnoreCase)
+                    if (String.Equals(p.Slug, "build-tests", StringComparison.OrdinalIgnoreCase)
                         | skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0) // a,B,c,D   A,c,E => a,c
                     {
                         continue;
                     }
                     else
                     {
-                        var x = new object[] { p.Key };
+                        var x = new object[] { p };
                         testCases.Add(x);
                     }
                 }

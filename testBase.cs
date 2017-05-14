@@ -33,7 +33,7 @@ namespace BuildTests
 
         [Theory]
         [MemberData("TestData", MemberType = typeof(BuildTestData))]
-        public void BuildShouldSucceed(string project)
+        public void BuildShouldSucceed(ProjectDetails project)
         {
             var result = Run(project).Result;
             if (result)
@@ -49,15 +49,15 @@ namespace BuildTests
             Task.Delay(TimeSpan.FromSeconds(30)).Wait();
         }
 
-        public async Task<bool> Run(string project)
+        public async Task<bool> Run(ProjectDetails project)
         {
-            Console.WriteLine("Testing: " + project);
+            Console.WriteLine("Testing: " + project.Name);
             HttpClient client = GetClient();
             //start the build
             var requestBody = new
             {
                 accountName = account,
-                projectSlug = project,
+                projectSlug = project.Slug,
                 branch = "master",
                 environmentVariables = new
                 {
@@ -70,7 +70,7 @@ namespace BuildTests
             var buildJson = await response.Content.ReadAsStringAsync();
             JToken build = JToken.Parse(buildJson);
             string buildVersion = build.Value<string>("version");
-            output.WriteLine("running version: {0} of project: {1}", buildVersion, project);
+            output.WriteLine("running version: {0} of project: {1}", buildVersion, project.Name);
             DateTime buildStarted = DateTime.UtcNow;
             string buildNotStartedErrorMessage = String.Format("Build has not started in {0} minutes", MaxProvisioningTime);
             string buildNotFinishedErrorMessage = String.Format("Build has not finished in {0} minutes", MaxRunTime);
@@ -82,7 +82,7 @@ namespace BuildTests
                 await Task.Delay(TimeSpan.FromSeconds(5));               
                 var elapsed = DateTime.UtcNow - buildStarted;
                 //get and parse last build which contains jobs array
-                var lastBuild = await client.GetAsync("projects/" + account + "/" + project);
+                var lastBuild = await client.GetAsync("projects/" + account + "/" + project.Slug);
                 var lastBuildJson = await lastBuild.Content.ReadAsStringAsync();
                 JObject buildObject = JObject.Parse(lastBuildJson);
                 var job = (JToken)buildObject["build"]["jobs"][0];
@@ -93,13 +93,13 @@ namespace BuildTests
 
                 if (String.Equals(status, "queued", StringComparison.OrdinalIgnoreCase) && elapsed.TotalMinutes > MaxProvisioningTime)
                 {
-                    await client.DeleteAsync("builds/" + account + "/" + project + "/" + buildVersion);
+                    await client.DeleteAsync("builds/" + account + "/" + project.Slug + "/" + buildVersion);
                     output.WriteLine(buildNotStartedErrorMessage);
                     return false;
                 }
                 else if (String.Equals(status, "running", StringComparison.OrdinalIgnoreCase) && elapsed.TotalMinutes > MaxRunTime)
                 {
-                    await client.DeleteAsync("builds/" + account + "/" + project + "/" + buildVersion);
+                    await client.DeleteAsync("builds/" + account + "/" + project.Slug + "/" + buildVersion);
                     output.WriteLine(buildNotFinishedErrorMessage);
                     return false;
                 }
@@ -124,10 +124,11 @@ namespace BuildTests
             } //end while loop
         }
 
-        public static async Task<Dictionary<string, string>> GetProjects(HttpClient client)
+        public static async Task<IList<ProjectDetails>> GetProjects(HttpClient client)
         {
+            var result = new List<ProjectDetails>();
+
             //fetch all projects from appeyor account and put them and their tags into a dictionary<string, string>
-            var projectDict = new Dictionary<string, string>();
             var projectList = new List<string>();
             var response = await client.GetAsync("projects");
             var projectString = await response.Content.ReadAsStringAsync();
@@ -135,12 +136,14 @@ namespace BuildTests
             var projects = projectsParsed.Children().ToList();
             foreach (var p in projects)
             {
-                //var projectTagsString = p.Value<string>("tags");
-                //var projectTags = JArray.Parse(projectTagsString);
-                //projectList.Add(p.Value<string>("name"));
-                projectDict.Add(p.Value<string>("name"), p.Value<string>("tags"));
+                result.Add(new ProjectDetails
+                {
+                    Slug = p.Value<string>("slug"),
+                    Name = p.Value<string>("name"),
+                    Tags = p.Value<string>("tags")
+                });
             }
-            return projectDict;
+            return result;
         }
 
         public static HttpClient GetClient()
