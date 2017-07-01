@@ -3,6 +3,7 @@ version: 1.0.{build}
 init:
 - appveyor version
 - git --version
+
 - ps: 'Write-Host "APPVEYOR_BUILD_WORKER_CLOUD: $env:APPVEYOR_BUILD_WORKER_CLOUD"'
 - ps: 'Write-Host "APPVEYOR_BUILD_WORKER_IMAGE: $env:APPVEYOR_BUILD_WORKER_IMAGE"'
 
