@@ -1,8 +1,5 @@
 version: 1.0.{build}
 
-hosts:
-  api.nuget.org: 93.184.221.200
-
 init:
 - appveyor version
 - git --version
