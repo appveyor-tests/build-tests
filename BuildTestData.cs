@@ -72,6 +72,9 @@ namespace BuildTests
                     var x = new object[] { p };
                     testCases.Add(x);
                 }
+
+                Console.WriteLine("Projects found: " + testCases.Count);
+
                 return testCases;
             }
         }
