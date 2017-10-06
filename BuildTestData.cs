@@ -18,17 +18,29 @@ namespace BuildTests
         {
             get
             {
-                var tags = Environment.GetEnvironmentVariable("SKIP_TAGS");
                 string[] skipTags;
-                if (tags != null)
+                string[] includeTags;
+
+                var evSkipTags = Environment.GetEnvironmentVariable("SKIP_TAGS");
+                if (evSkipTags != null)
                 {
-                    skipTags = tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
+                    skipTags = evSkipTags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
                 }
                 else
                 {
                     skipTags = new string[0];
                 }
-                var includeTests = Environment.GetEnvironmentVariable("INCLUDE_TESTS");
+
+                var evIncludeTags = Environment.GetEnvironmentVariable("INCLUDE_TAGS");
+                if (evIncludeTags != null)
+                {
+                    includeTags = evIncludeTags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();  // a, b,,c
+                }
+                else
+                {
+                    includeTags = new string[0];
+                }
+
                 //var testBase = new TestBase();
                 var testClient = TestBase.GetClient();
                 var projectList = TestBase.GetProjects(testClient).Result;
@@ -39,16 +51,26 @@ namespace BuildTests
                         ? p.Tags.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray()
                         : new string[0];
 
-                    if (String.Equals(p.Slug, "build-tests", StringComparison.OrdinalIgnoreCase)
-                        | skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0) // a,B,c,D   A,c,E => a,c
+                    if (String.Equals(p.Slug, "build-tests", StringComparison.OrdinalIgnoreCase))
                     {
+                        // skip "build-tests" project
                         continue;
                     }
-                    else
+
+                    if (skipTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() > 0) // a,B,c,D   A,c,E => a,c
                     {
-                        var x = new object[] { p };
-                        testCases.Add(x);
+                        // skip tags
+                        continue;
                     }
+
+                    if (includeTags.Length > 0 && includeTags.Intersect(projectTags, StringComparer.OrdinalIgnoreCase).Count() == 0)
+                    {
+                        // include tags
+                        continue;
+                    }
+
+                    var x = new object[] { p };
+                    testCases.Add(x);
                 }
                 return testCases;
             }
