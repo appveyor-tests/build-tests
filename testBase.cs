@@ -61,9 +61,8 @@ namespace BuildTests
                 branch = "master",
                 environmentVariables = new
                 {
-                    APPVEYOR_BUILD_WORKER_CLOUD = Environment.GetEnvironmentVariable("APPVEYOR_BUILD_WORKER_CLOUD"),
-                    APPVEYOR_BUILD_WORKER_IMAGE = Environment.GetEnvironmentVariable("APPVEYOR_BUILD_WORKER_IMAGE")
-                    
+                    APPVEYOR_BUILD_WORKER_CLOUD = Environment.GetEnvironmentVariable("TEST_CLOUD"),
+                    APPVEYOR_BUILD_WORKER_IMAGE = Environment.GetEnvironmentVariable("TEST_IMAGE")
                 }
             };
             var response = await client.PostAsJsonAsync("builds", requestBody);
