@@ -4,8 +4,8 @@ init:
 - appveyor version
 - git --version
 
-- ps: 'Write-Host "APPVEYOR_BUILD_WORKER_CLOUD: $env:APPVEYOR_BUILD_WORKER_CLOUD"'
-- ps: 'Write-Host "APPVEYOR_BUILD_WORKER_IMAGE: $env:APPVEYOR_BUILD_WORKER_IMAGE"'
+- ps: 'Write-Host "TEST_CLOUD: $env:TEST_CLOUD"'
+- ps: 'Write-Host "TEST_IMAGE: $env:TEST_IMAGE"'
 
 environment:
   MAX_BUILD_TIME_MINS: 20
