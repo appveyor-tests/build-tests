@@ -3,7 +3,7 @@ version: 1.0.{build}
 init:
 - appveyor version
 - git --version
-
+- ps: Update-AppveyorBuild -Message "Test $env:INCLUDE_TAGS tag against $env:TEST_IMAGE @ $env:TEST_CLOUD cloud. $env:APPVEYOR_REPO_COMMIT_MESSAGE"
 - ps: 'Write-Host "TEST_CLOUD: $env:TEST_CLOUD"'
 - ps: 'Write-Host "TEST_IMAGE: $env:TEST_IMAGE"'
 
